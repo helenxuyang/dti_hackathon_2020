@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'main.dart';
+import 'Onboarding.dart';
 
 class CurrentUserInfo with ChangeNotifier {
   String id;
@@ -38,12 +39,11 @@ class CurrentUserInfo with ChangeNotifier {
     setID(user.uid);
     DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
     if (!userDoc.exists) {
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'ingredients': [],
-        'recipeIDs': []
-      });
+      Navigator.push(context, MaterialPageRoute(builder: (context) => OnboardingPage()));
     }
-    Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage()));
+    else {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage()));
+    }
   }
 
   Future<void> signOut() async {
