@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'Login.dart';
 import 'RecipesPage.dart';
+import 'Ingredients.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
               ),
             ),
           ),
-          home: MainPage(),
+          home: LoginPage(),
         ),
         create: (context) => CurrentUserInfo()
     );
@@ -53,9 +54,12 @@ class MainPageState extends State<MainPage> {
         return RecipesPage();
         break;
       case 1:
-        return Column();
+        return Ingredients();
         break;
       case 2:
+        return Column();
+        break;
+      case 3:
         return Column();
         break;
       default:
