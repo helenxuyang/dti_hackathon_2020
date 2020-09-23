@@ -15,15 +15,15 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Color primary = Color.fromRGBO(0x99, 0x0D, 0x35, 1.0);
+    Color primary = Color.fromRGBO(0x98, 0xD0, 0xD0, 1.0);
     return ChangeNotifierProvider(
         child: MaterialApp(
           title: 'Flutter Demo',
           theme: ThemeData(
             fontFamily: 'Proxima-Nova',
             primaryColor: primary,
-            accentColor: Color.fromRGBO(0xD5, 0x29, 0x41, 1.0),
-            buttonColor: Color.fromRGBO(0x99, 0x0D, 0x35, 1.0),
+            accentColor: Color.fromRGBO(0xFF, 0xC5, 0x99, 1.0),
+            buttonColor: primary,
             visualDensity: VisualDensity.adaptivePlatformDensity,
             textTheme: TextTheme(
               headline1: TextStyle(
@@ -58,16 +58,16 @@ class MainPageState extends State<MainPage> {
   Widget getPage(BuildContext context, int index) {
     switch (index) {
       case 0:
-        return RecipesPage();
-        break;
-      case 1:
         return Ingredients();
         break;
+      case 1:
+        return RecipesPage();
+        break;
       case 2:
-        return PostsPage();
+        return Column();
         break;
       case 3:
-        return Column();
+        return PostsPage();
         break;
       default:
         return Column();
@@ -85,13 +85,20 @@ class MainPageState extends State<MainPage> {
         selectedItemColor: Theme.of(context).buttonColor,
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-              icon: Icon(Icons.home), title: Text('Home')),
+              icon: Icon(Icons.restaurant_menu), title: Text('Kitchen')
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.explore), title: Text('Explore')),
+              icon: Icon(Icons.explore), title: Text('Explore')
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.chat), title: Text('Discussion')),
+              icon: Icon(Icons.favorite), title: Text('Saved')
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.account_circle), title: Text('Profile'))
+              icon: Icon(Icons.chat), title: Text('Social')
+          ),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.account_circle), title: Text('Profile')
+          )
         ],
         currentIndex: _selectedIndex,
         onTap: (int index) => setState(() {
