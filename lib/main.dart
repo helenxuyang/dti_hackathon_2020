@@ -14,12 +14,13 @@ void main() async {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    Color primary = Color.fromRGBO(0x99, 0x0D, 0x35, 1.0);
     return ChangeNotifierProvider(
         child: MaterialApp(
           title: 'Flutter Demo',
           theme: ThemeData(
             fontFamily: 'Proxima-Nova',
-            primaryColor: Color.fromRGBO(0x99, 0x0D, 0x35, 1.0),
+            primaryColor: primary,
             accentColor: Color.fromRGBO(0xD5, 0x29, 0x41, 1.0),
             buttonColor: Color.fromRGBO(0x99, 0x0D, 0x35, 1.0),
             visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -28,6 +29,11 @@ class MyApp extends StatelessWidget {
                   fontFamily: 'Proxima-Nova',
                   fontWeight: FontWeight.bold,
                   fontSize: 32,
+                  color: primary
+              ),
+              headline2: TextStyle(
+                  fontFamily: 'Proxima-Nova',
+                  fontSize: 22,
                   color: Colors.black
               ),
             ),
