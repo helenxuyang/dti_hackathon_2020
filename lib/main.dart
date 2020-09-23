@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'Login.dart';
 import 'RecipesPage.dart';
 import 'Ingredients.dart';
+import 'PostsPage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -63,7 +64,7 @@ class MainPageState extends State<MainPage> {
         return Ingredients();
         break;
       case 2:
-        return Column();
+        return PostsPage();
         break;
       case 3:
         return Column();
