@@ -25,7 +25,7 @@ class _RecipesPageState extends State<RecipesPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
             child: Text('Explore', style: Theme.of(context).textTheme.headline1),
           ),
           StreamBuilder(
@@ -41,11 +41,9 @@ class _RecipesPageState extends State<RecipesPage> {
                 double screenWidth = MediaQuery.of(context).size.width;
                 double screenHeight = MediaQuery.of(context).size.height;
                 return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
                   children: [
                     Container(
-                      height: screenHeight * 0.6,
+                      height: screenHeight * 0.65,
                       child: TinderSwapCard(
                         cardController: controller,
                         orientation: AmassOrientation.BOTTOM,
@@ -54,7 +52,7 @@ class _RecipesPageState extends State<RecipesPage> {
                         maxWidth: screenWidth * 0.9,
                         maxHeight: screenHeight * 0.8,
                         minWidth: screenWidth * 0.8,
-                        minHeight: screenHeight * 0.5,
+                        minHeight: screenHeight * 0.7,
                         allowVerticalMovement: false,
                         totalNum: recipeDocs.length,
                         cardBuilder: (context, index) {
