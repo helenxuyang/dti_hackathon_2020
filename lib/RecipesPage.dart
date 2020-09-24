@@ -42,39 +42,65 @@ class _RecipesPageState extends State<RecipesPage> {
                 double screenHeight = MediaQuery.of(context).size.height;
                 return Column(
                   children: [
-                    Container(
-                      height: screenHeight * 0.65,
-                      child: TinderSwapCard(
-                        cardController: controller,
-                        orientation: AmassOrientation.BOTTOM,
-                        stackNum: 3,
-                        swipeEdge: 4.0,
-                        maxWidth: screenWidth * 0.9,
-                        maxHeight: screenHeight * 0.8,
-                        minWidth: screenWidth * 0.8,
-                        minHeight: screenHeight * 0.7,
-                        allowVerticalMovement: false,
-                        totalNum: recipeDocs.length,
-                        cardBuilder: (context, index) {
-                          DocumentSnapshot doc = recipeDocs[index];
-                          return RecipeCard.fromDoc(doc);
-                        },
-                        swipeCompleteCallback: (CardSwipeOrientation orientation, int index) {
-                          if (orientation == CardSwipeOrientation.RIGHT) {
-                            FirebaseFirestore.instance.runTransaction((transaction) async {
-                              String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
-                              DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userID).get();
-                              transaction.update(
-                                  userDoc.reference,
-                                  {'savedRecipes': userDoc.get('savedRecipes')..add(recipeDocs[index].id)}
-                              );
-                            });
-                          }
-                          else {
+                    Stack(
+                      children: [
+                        Container(
+                          height: screenHeight * 0.65,
+                          child: Stack(
+                            children: [
+                              Center(
+                                child: Container(
+                                  width: screenWidth * 0.6,
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text('That\'s all we have for your ingredients! Want to create your own recipe?', textAlign: TextAlign.center),
+                                        FlatButton(
+                                          color: Theme.of(context).primaryColor,
+                                          child: Text('Create'),
+                                          onPressed: () {
+                                            //TODO: navigate to create recipe page
+                                          },
+                                        )
+                                      ],
+                                    )
+                                ),
+                              ),
+                              TinderSwapCard(
+                                cardController: controller,
+                                orientation: AmassOrientation.BOTTOM,
+                                stackNum: 3,
+                                swipeEdge: 4.0,
+                                maxWidth: screenWidth * 0.9,
+                                maxHeight: screenHeight * 0.8,
+                                minWidth: screenWidth * 0.8,
+                                minHeight: screenHeight * 0.7,
+                                allowVerticalMovement: false,
+                                totalNum: recipeDocs.length,
+                                cardBuilder: (context, index) {
+                                  DocumentSnapshot doc = recipeDocs[index];
+                                  return RecipeCard.fromDoc(doc);
+                                },
+                                swipeCompleteCallback: (CardSwipeOrientation orientation, int index) {
+                                  if (orientation == CardSwipeOrientation.RIGHT) {
+                                    FirebaseFirestore.instance.runTransaction((transaction) async {
+                                      String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
+                                      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userID).get();
+                                      transaction.update(
+                                          userDoc.reference,
+                                          {'savedRecipes': userDoc.get('savedRecipes')..add(recipeDocs[index].id)}
+                                      );
+                                    });
+                                  }
+                                  else {
 
-                          }
-                        },
-                      ),
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                     SizedBox(height: 8),
                     Row(

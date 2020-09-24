@@ -30,8 +30,9 @@ Future<bool> userHasIngredient(BuildContext context, String ingredient) async {
 }
 
 class Recipe {
-  Recipe(this.name, this.imageURL, this.categories, this.ingredients, this.materials, this.steps);
+  Recipe(this.name, this.creator, this.imageURL, this.categories, this.ingredients, this.materials, this.steps);
   String name;
+  String creator;
   String imageURL;
   List<String> categories;
   List<String> ingredients;
@@ -45,11 +46,12 @@ class RecipeCard extends StatelessWidget {
   factory RecipeCard.fromDoc(DocumentSnapshot doc) {
     Recipe recipe = Recipe(
         doc.get('name'),
+        doc.get('creator'),
         doc.get('imageURL'),
         List<String>.from(doc.get('categories')),
         List<String>.from(doc.get('ingredients')),
         List<String>.from(doc.get('materials')),
-        List<String>.from(doc.get('steps')));
+        List<String>.from(doc.get('ingredients')));
     return RecipeCard(recipe);
   }
   final Recipe recipe;
@@ -85,9 +87,12 @@ class RecipeCard extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(recipe.name, style: Theme.of(context).textTheme.headline2),
+                  Text('Recipe by: ' + recipe.creator),
                   //SizedBox(height: 4),
                   //buildStars(context),
+                  SizedBox(height: 8),
                   Wrap(
+                    spacing: 4,
                       children: recipe.categories.map((cat) {
                         return Container(
                           decoration: BoxDecoration(
@@ -145,6 +150,7 @@ class RecipeCard extends StatelessWidget {
                   SizedBox(height: 8),
                   Text('Materials:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   SizedBox(height: 6),
+                  recipe.materials.isEmpty ? Text('None!') :
                   Wrap(
                       children: recipe.materials.map((material) {
                         return FutureBuilder(
@@ -225,8 +231,7 @@ class RecipePage extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(recipe.name, style: Theme.of(context).textTheme.headline1),
-                          //SizedBox(height: 4),
-                          //buildStars(context),
+                          Text('Recipe by: ' + recipe.creator, style: TextStyle(fontSize: 16)),
                           Wrap(
                               children: recipe.categories.map((cat) {
                                 return Container(
