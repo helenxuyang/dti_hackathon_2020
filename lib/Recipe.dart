@@ -80,131 +80,127 @@ class RecipeCard extends StatelessWidget {
     Color redBack = Color.fromRGBO(0xFC, 0xDF, 0xDF, 1.0);
     Color greenText = Color.fromRGBO(0x0C, 0x8D, 0x09, 1.0);
     Color redText = Color.fromRGBO(0x8D, 0x09, 0x09, 1.0);
-    return Stack(
-      children: [
-        Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.25),
-                        child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                                decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                        fit: BoxFit.fitWidth,
-                                        image: NetworkImage(recipe.imageURL)
-                                    )
+    return Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.25),
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Container(
+                            decoration: BoxDecoration(
+                                image: DecorationImage(
+                                    fit: BoxFit.fitWidth,
+                                    image: NetworkImage(recipe.imageURL)
                                 )
                             )
                         )
-                    ),
-                    SizedBox(height: 8),
-                    Text(recipe.name, style: Theme.of(context).textTheme.headline2),
-                    //SizedBox(height: 4),
-                    //buildStars(context),
-                    Wrap(
-                        children: recipe.categories.map((cat) {
+                    )
+                ),
+                SizedBox(height: 8),
+                Text(recipe.name, style: Theme.of(context).textTheme.headline2),
+                //SizedBox(height: 4),
+                //buildStars(context),
+                Wrap(
+                    children: recipe.categories.map((cat) {
+                      return Container(
+                        decoration: BoxDecoration(
+                            color: Theme.of(context).accentColor,
+                            border: Border.all(
+                                color: Colors.transparent
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(8))
+                        ),
+                        padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+                        child: Text(
+                            cat,
+                            style: TextStyle(fontSize: 14)
+                        ),
+                      );
+                    }).toList()
+                ),
+                SizedBox(height: 8),
+                Text('Ingredients:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                SizedBox(height: 6),
+                Wrap(
+                  children: recipe.ingredients.map((ingredient) {
+                    return FutureBuilder(
+                        future: userHasIngredient(context, ingredient),
+                        builder: (context, snapshot) {
+                          bool userHas;
+                          if (!snapshot.hasData) {
+                            userHas = false;
+                          }
+                          else {
+                            userHas = snapshot.data;
+                          }
                           return Container(
                             decoration: BoxDecoration(
-                                color: Theme.of(context).accentColor,
+                                color: userHas ? greenBack : redBack,
                                 border: Border.all(
-                                    color: Colors.transparent
+                                  color: Colors.transparent,
                                 ),
                                 borderRadius: BorderRadius.all(Radius.circular(8))
                             ),
                             padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
                             child: Text(
-                                cat,
-                                style: TextStyle(fontSize: 14)
+                                ingredient,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    color: userHas ? greenText : redText
+                                )
                             ),
                           );
-                        }).toList()
-                    ),
-                    SizedBox(height: 8),
-                    Text('Ingredients:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 6),
-                    Wrap(
-                      children: recipe.ingredients.map((ingredient) {
-                        return FutureBuilder(
-                            future: userHasIngredient(context, ingredient),
-                            builder: (context, snapshot) {
-                              bool userHas;
-                              if (!snapshot.hasData) {
-                                userHas = false;
-                              }
-                              else {
-                                userHas = snapshot.data;
-                              }
-                              return Container(
-                                decoration: BoxDecoration(
-                                    color: userHas ? greenBack : redBack,
-                                    border: Border.all(
-                                      color: Colors.transparent,
-                                    ),
-                                    borderRadius: BorderRadius.all(Radius.circular(8))
-                                ),
-                                padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-                                child: Text(
-                                    ingredient,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: userHas ? greenText : redText
-                                    )
-                                ),
-                              );
+                        }
+                    );
+                  }).toList(),
+                  spacing: 4,
+                ),
+                SizedBox(height: 8),
+                Text('Materials:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                SizedBox(height: 6),
+                Wrap(
+                    children: recipe.materials.map((material) {
+                      return FutureBuilder(
+                          future: userHasMaterial(context, material),
+                          builder: (context, snapshot) {
+                            bool userHas;
+                            if (!snapshot.hasData) {
+                              userHas = false;
                             }
-                        );
-                      }).toList(),
-                      spacing: 4,
-                    ),
-                    SizedBox(height: 8),
-                    Text('Materials:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 6),
-                    Wrap(
-                        children: recipe.materials.map((material) {
-                          return FutureBuilder(
-                              future: userHasMaterial(context, material),
-                              builder: (context, snapshot) {
-                                bool userHas;
-                                if (!snapshot.hasData) {
-                                  userHas = false;
-                                }
-                                else {
-                                  userHas = snapshot.data;
-                                }
-                                return Container(
-                                  decoration: BoxDecoration(
-                                      color: userHas ? greenBack : redBack,
-                                      border: Border.all(
-                                        color: userHas ? greenBack : redBack,
-                                      ),
-                                      borderRadius: BorderRadius.all(Radius.circular(8))
+                            else {
+                              userHas = snapshot.data;
+                            }
+                            return Container(
+                              decoration: BoxDecoration(
+                                  color: userHas ? greenBack : redBack,
+                                  border: Border.all(
+                                    color: userHas ? greenBack : redBack,
                                   ),
-                                  padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-                                  child: Text(
-                                      material,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: userHas ? greenText : redText
-                                      )
-                                  ),
-                                );
-                              }
-                          );
-                        }).toList()
-                    ),
-                  ]
-              ),
-            )
-        ),
-      ],
+                                  borderRadius: BorderRadius.all(Radius.circular(8))
+                              ),
+                              padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+                              child: Text(
+                                  material,
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: userHas ? greenText : redText
+                                  )
+                              ),
+                            );
+                          }
+                      );
+                    }).toList()
+                ),
+              ]
+          ),
+        )
     );
   }
 }

@@ -52,7 +52,7 @@ class _RecipesPageState extends State<RecipesPage> {
                         stackNum: 3,
                         swipeEdge: 4.0,
                         maxWidth: screenWidth * 0.9,
-                        maxHeight: screenHeight * 0.6,
+                        maxHeight: screenHeight * 0.8,
                         minWidth: screenWidth * 0.8,
                         minHeight: screenHeight * 0.5,
                         allowVerticalMovement: false,
@@ -78,15 +78,7 @@ class _RecipesPageState extends State<RecipesPage> {
                         },
                       ),
                     ),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: IconButton(
-                          icon: Icon(Icons.keyboard_arrow_up),
-                          onPressed: () {
-
-                          }
-                      ),
-                    ),
+                    SizedBox(height: 8),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
