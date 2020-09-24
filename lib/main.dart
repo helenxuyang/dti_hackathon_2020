@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
               ),
               headline2: TextStyle(
                   fontFamily: 'Proxima-Nova',
+                  fontWeight: FontWeight.bold,
                   fontSize: 22,
                   color: Colors.black
               ),
@@ -52,23 +54,29 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
-
   int _selectedIndex = 0;
+  static const int KITCHEN = 0;
+  static const int EXPLORE = 1;
+  static const int SAVED = 2;
+  static const int SOCIAL = 3;
+  static const int PROFILE = 4;
 
   Widget getPage(BuildContext context, int index) {
     switch (index) {
-      case 0:
+      case KITCHEN:
         return Ingredients();
         break;
-      case 1:
+      case EXPLORE:
         return RecipesPage();
         break;
-      case 2:
+      case SAVED:
         return Column();
         break;
-      case 3:
+      case SOCIAL:
         return PostsPage();
         break;
+      case PROFILE:
+        return Column();
       default:
         return Column();
     }
@@ -77,6 +85,17 @@ class MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: _selectedIndex == SAVED || _selectedIndex == PROFILE ? null :
+      FloatingActionButton(
+        child: Icon(Icons.add, color: Colors.white),
+        backgroundColor: Theme.of(context).primaryColor,
+        onPressed: () {
+          switch (_selectedIndex) {
+            case (KITCHEN):
+              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateIngredientPage()));
+          }
+        },
+      ),
       body: SafeArea(
           child: getPage(context, _selectedIndex)
       ),
