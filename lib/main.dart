@@ -85,7 +85,7 @@ class MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: _selectedIndex == SAVED || _selectedIndex == PROFILE ? null :
+      floatingActionButton: _selectedIndex == KITCHEN ?
       FloatingActionButton(
         child: Icon(Icons.add, color: Colors.white),
         backgroundColor: Theme.of(context).primaryColor,
@@ -95,7 +95,7 @@ class MainPageState extends State<MainPage> {
               Navigator.push(context, MaterialPageRoute(builder: (context) => CreateIngredientPage()));
           }
         },
-      ),
+      ) : null,
       body: SafeArea(
           child: getPage(context, _selectedIndex)
       ),

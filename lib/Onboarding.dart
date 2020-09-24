@@ -138,9 +138,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     'lastName': lastCtrl.text,
                     'dietaryRestrictions': dietaryRestrictions,
                     'allergies': allergies,
-                    'recipeIDs': [],
+                    'savedRecipes': [],
                     'ingredients': [],
-                    'utensils': []
+                    'materials': []
                   });
                   Navigator.push(
                       context, MaterialPageRoute(builder: (context) => MainPage()));
