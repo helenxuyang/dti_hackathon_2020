@@ -30,15 +30,107 @@ Future<bool> userHasIngredient(BuildContext context, String ingredient) async {
 }
 
 class Recipe {
-  Recipe(this.name, this.creator, this.imageURL, this.categories, this.ingredients, this.materials, this.steps);
+  Recipe(this.name, this.creator, this.imageURL, this.categories, this.ingredients, this.materials, this.instructions);
   String name;
   String creator;
   String imageURL;
   List<String> categories;
   List<String> ingredients;
   List<String> materials;
-  List<String> steps;
+  List<String> instructions;
 // double rating;
+
+  Widget buildCategories(BuildContext context) {
+    return Wrap(
+        spacing: 4,
+        children: categories.map((cat) {
+          return Container(
+            decoration: BoxDecoration(
+                color: Theme.of(context).accentColor,
+                border: Border.all(
+                    color: Colors.transparent
+                ),
+                borderRadius: BorderRadius.all(Radius.circular(8))
+            ),
+            padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+            child: Text(
+                cat,
+                style: TextStyle(fontSize: 14)
+            ),
+          );
+        }).toList()
+    );
+  }
+
+  Widget buildIngredients(BuildContext context) {
+    return Wrap(
+      children: ingredients.map((ingredient) {
+        return FutureBuilder(
+            future: userHasIngredient(context, ingredient),
+            builder: (context, snapshot) {
+              bool userHas = snapshot.data;
+              return Container(
+                decoration: BoxDecoration(
+                    color: userHas == null ? Colors.grey[200] : userHas ? greenBack : redBack,
+                    border: Border.all(
+                      color: Colors.transparent,
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(8))
+                ),
+                padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+                child: Text(
+                    ingredient,
+                    style: TextStyle(
+                        fontSize: 14,
+                        color: userHas == null ? Colors.grey[600] : userHas ? greenText : redText
+                    )
+                ),
+              );
+            }
+        );
+      }).toList(),
+      spacing: 4,
+    );
+  }
+
+  Widget buildMaterials(BuildContext context) {
+    if (materials.isEmpty) {
+      return Text('None!');
+    }
+    return Wrap(
+        children: materials.map((material) {
+          return FutureBuilder(
+              future: userHasMaterial(context, material),
+              builder: (context, snapshot) {
+                bool userHas;
+                if (!snapshot.hasData) {
+                  userHas = false;
+                }
+                else {
+                  userHas = snapshot.data;
+                }
+                return Container(
+                  decoration: BoxDecoration(
+                      color: userHas ? greenBack : redBack,
+                      border: Border.all(
+                        color: userHas ? greenBack : redBack,
+                      ),
+                      borderRadius: BorderRadius.all(Radius.circular(8))
+                  ),
+                  padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+                  child: Text(
+                      material,
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: userHas ? greenText : redText
+                      )
+                  ),
+                );
+              }
+          );
+        }).toList()
+    );
+  }
 }
 
 class RecipeCard extends StatelessWidget {
@@ -51,7 +143,7 @@ class RecipeCard extends StatelessWidget {
         List<String>.from(doc.get('categories')),
         List<String>.from(doc.get('ingredients')),
         List<String>.from(doc.get('materials')),
-        List<String>.from(doc.get('ingredients')));
+        List<String>.from(doc.get('instructions')));
     return RecipeCard(recipe);
   }
   final Recipe recipe;
@@ -91,99 +183,15 @@ class RecipeCard extends StatelessWidget {
                   //SizedBox(height: 4),
                   //buildStars(context),
                   SizedBox(height: 8),
-                  Wrap(
-                    spacing: 4,
-                      children: recipe.categories.map((cat) {
-                        return Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context).accentColor,
-                              border: Border.all(
-                                  color: Colors.transparent
-                              ),
-                              borderRadius: BorderRadius.all(Radius.circular(8))
-                          ),
-                          padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-                          child: Text(
-                              cat,
-                              style: TextStyle(fontSize: 14)
-                          ),
-                        );
-                      }).toList()
-                  ),
+                  recipe.buildCategories(context),
                   SizedBox(height: 8),
                   Text('Ingredients:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   SizedBox(height: 6),
-                  Wrap(
-                    children: recipe.ingredients.map((ingredient) {
-                      return FutureBuilder(
-                          future: userHasIngredient(context, ingredient),
-                          builder: (context, snapshot) {
-                            bool userHas;
-                            if (!snapshot.hasData) {
-                              userHas = false;
-                            }
-                            else {
-                              userHas = snapshot.data;
-                            }
-                            return Container(
-                              decoration: BoxDecoration(
-                                  color: userHas ? greenBack : redBack,
-                                  border: Border.all(
-                                    color: Colors.transparent,
-                                  ),
-                                  borderRadius: BorderRadius.all(Radius.circular(8))
-                              ),
-                              padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-                              child: Text(
-                                  ingredient,
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: userHas ? greenText : redText
-                                  )
-                              ),
-                            );
-                          }
-                      );
-                    }).toList(),
-                    spacing: 4,
-                  ),
+                  recipe.buildIngredients(context),
                   SizedBox(height: 8),
                   Text('Materials:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   SizedBox(height: 6),
-                  recipe.materials.isEmpty ? Text('None!') :
-                  Wrap(
-                      children: recipe.materials.map((material) {
-                        return FutureBuilder(
-                            future: userHasMaterial(context, material),
-                            builder: (context, snapshot) {
-                              bool userHas;
-                              if (!snapshot.hasData) {
-                                userHas = false;
-                              }
-                              else {
-                                userHas = snapshot.data;
-                              }
-                              return Container(
-                                decoration: BoxDecoration(
-                                    color: userHas ? greenBack : redBack,
-                                    border: Border.all(
-                                      color: userHas ? greenBack : redBack,
-                                    ),
-                                    borderRadius: BorderRadius.all(Radius.circular(8))
-                                ),
-                                padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-                                child: Text(
-                                    material,
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: userHas ? greenText : redText
-                                    )
-                                ),
-                              );
-                            }
-                        );
-                      }).toList()
-                  ),
+                  recipe.buildMaterials(context)
                 ]
             ),
           )
@@ -232,123 +240,42 @@ class RecipePage extends StatelessWidget {
                         children: [
                           Text(recipe.name, style: Theme.of(context).textTheme.headline1),
                           Text('Recipe by: ' + recipe.creator, style: TextStyle(fontSize: 16)),
-                          Wrap(
-                              children: recipe.categories.map((cat) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                      color: Theme.of(context).accentColor,
-                                      border: Border.all(
-                                          color: Colors.transparent
-                                      ),
-                                      borderRadius: BorderRadius.all(Radius.circular(8))
-                                  ),
-                                  padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-                                  child: Text(
-                                      cat,
-                                      style: TextStyle(fontSize: 14)
-                                  ),
-                                );
-                              }).toList()
-                          ),
+                          SizedBox(height: 6),
+                          recipe.buildCategories(context),
                           SizedBox(height: 8),
                           Text('Ingredients:', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                           SizedBox(height: 6),
-                          Wrap(
-                            children: recipe.ingredients.map((ingredient) {
-                              return FutureBuilder(
-                                  future: userHasIngredient(context, ingredient),
-                                  builder: (context, snapshot) {
-                                    bool userHas;
-                                    if (!snapshot.hasData) {
-                                      userHas = false;
-                                    }
-                                    else {
-                                      userHas = snapshot.data;
-                                    }
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                          color: userHas ? greenBack : redBack,
-                                          border: Border.all(
-                                            color: Colors.transparent,
-                                          ),
-                                          borderRadius: BorderRadius.all(Radius.circular(8))
-                                      ),
-                                      padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-                                      child: Text(
-                                          ingredient,
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: userHas ? greenText : redText
-                                          )
-                                      ),
-                                    );
-                                  }
-                              );
-                            }).toList(),
-                            spacing: 4,
-                          ),
+                          recipe.buildIngredients(context),
                           SizedBox(height: 8),
                           Text('Materials:', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                           SizedBox(height: 6),
-                          Wrap(
-                              children: recipe.materials.map((material) {
-                                return FutureBuilder(
-                                    future: userHasMaterial(context, material),
-                                    builder: (context, snapshot) {
-                                      bool userHas;
-                                      if (!snapshot.hasData) {
-                                        userHas = false;
-                                      }
-                                      else {
-                                        userHas = snapshot.data;
-                                      }
-                                      return Container(
-                                        decoration: BoxDecoration(
-                                            color: userHas ? greenBack : redBack,
-                                            border: Border.all(
-                                              color: userHas ? greenBack : redBack,
-                                            ),
-                                            borderRadius: BorderRadius.all(Radius.circular(8))
-                                        ),
-                                        padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-                                        child: Text(
-                                            material,
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                color: userHas ? greenText : redText
-                                            )
-                                        ),
-                                      );
-                                    }
-                                );
-                              }).toList()
-                          ),
+                          recipe.buildMaterials(context),
                           SizedBox(height: 8),
                           Text('Instructions:', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                           SizedBox(height: 6),
                           ListView.builder(
                               physics: NeverScrollableScrollPhysics(),
                               shrinkWrap: true,
-                              itemCount: recipe.steps.length,
+                              itemCount: recipe.instructions.length,
                               itemBuilder: (context, index) {
                                 return Padding(
                                   padding: const EdgeInsets.only(top: 2, bottom: 2),
-                                  child: Text((index+1).toString() + ') ' + recipe.steps[index]),
+                                  child: Text((index+1).toString() + ') ' + recipe.instructions[index]),
                                 );
                               }
                           ),
                           FlatButton(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.chevron_left),
-                                SizedBox(width: 8),
-                                Text('Back to Explore')
-                              ]
-                            ),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            }
+                              child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.chevron_left),
+                                    SizedBox(width: 8),
+                                    Text('Back to Explore')
+                                  ]
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              }
                           )
                         ]
                     ),

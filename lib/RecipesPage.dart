@@ -92,9 +92,6 @@ class _RecipesPageState extends State<RecipesPage> {
                                       );
                                     });
                                   }
-                                  else {
-
-                                  }
                                 },
                               ),
                             ],
