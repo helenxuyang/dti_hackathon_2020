@@ -3,7 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'Login.dart';
 import 'RecipesPage.dart';
-import 'Ingredients.dart';
+import 'Kitchen.dart';
 import 'PostsPage.dart';
 
 void main() async {
