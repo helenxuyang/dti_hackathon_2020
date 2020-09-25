@@ -268,13 +268,14 @@ class RecipePage extends StatelessWidget {
                                 );
                               }
                           ),
+                          SizedBox(height: 8),
                           FlatButton(
                               child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.chevron_left),
                                     SizedBox(width: 8),
-                                    Text('Back to Explore')
+                                    Text('Back')
                                   ]
                               ),
                               onPressed: () {

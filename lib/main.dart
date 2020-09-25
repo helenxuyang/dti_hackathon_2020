@@ -7,6 +7,7 @@ import 'Login.dart';
 import 'RecipesPage.dart';
 import 'Kitchen.dart';
 import 'PostsPage.dart';
+import 'SavedPage.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 void main() async {
@@ -72,7 +73,7 @@ class MainPageState extends State<MainPage> {
         return RecipesPage();
         break;
       case SAVED:
-        return Column();
+        return SavedPage();
         break;
       case SOCIAL:
         return PostsPage();
