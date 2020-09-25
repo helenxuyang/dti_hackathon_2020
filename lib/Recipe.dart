@@ -3,6 +3,8 @@ import 'package:dti_hackathon_2020/Login.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'UserInfo.dart';
+
 Color greenBack = Color.fromRGBO(0xDF, 0xFC, 0xE2, 1.0);
 Color redBack = Color.fromRGBO(0xFC, 0xDF, 0xDF, 1.0);
 Color greenText = Color.fromRGBO(0x0C, 0x8D, 0x09, 1.0);

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tindercard/flutter_tindercard.dart';
 import 'package:provider/provider.dart';
 import 'Recipe.dart';
+import 'UserInfo.dart';
 
 class RecipesPage extends StatefulWidget {
   _RecipesPageState createState() => _RecipesPageState();

@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dti_hackathon_2020/Login.dart';
 import 'package:dti_hackathon_2020/Recipe.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'UserInfo.dart';
 
 class SavedPage extends StatelessWidget {
   @override

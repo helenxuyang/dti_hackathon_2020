@@ -10,6 +10,8 @@ import 'PostsPage.dart';
 import 'SavedPage.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
+import 'UserInfo.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();

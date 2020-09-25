@@ -7,6 +7,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
 
 import 'Login.dart';
+import 'UserInfo.dart';
 
 class Ingredient {
   Ingredient(this.name, this.type);
