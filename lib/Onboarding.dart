@@ -20,16 +20,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
   List<String> dietaryRestrictions = [];
   List<String> allergies = [];
 
-  InputDecoration inputDeco = InputDecoration(
-    border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: BorderSide.none
-    ),
-    contentPadding: EdgeInsets.all(16),
-    filled: true,
-    fillColor: Color.fromRGBO(0xee, 0xee, 0xee, 1.0),
-  );
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,7 +46,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             TextFormField(
                                 controller: firstCtrl,
                                 textCapitalization: TextCapitalization.sentences,
-                                decoration: inputDeco,
                                 focusNode: focusNode,
                                 textInputAction: TextInputAction.next,
                                 validator: (input) {
@@ -72,7 +61,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                             TextFormField(
                               controller: lastCtrl,
                               textCapitalization: TextCapitalization.sentences,
-                              decoration: inputDeco,
                               textInputAction: TextInputAction.done,
                               validator: (input) {
                                 if (input.isEmpty) {
@@ -132,18 +120,22 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 child: Text('Done', style: TextStyle(color: Colors.white, fontSize: 16)),
                 color: Theme.of(context).primaryColor,
                 onPressed: () async {
-                  String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
-                  FirebaseFirestore.instance.collection('users').doc(userID).set({
-                    'firstName': firstCtrl.text,
-                    'lastName': lastCtrl.text,
-                    'dietaryRestrictions': dietaryRestrictions,
-                    'allergies': allergies,
-                    'savedRecipes': [],
-                    'ingredients': [],
-                    'materials': []
-                  });
-                  Navigator.push(
-                      context, MaterialPageRoute(builder: (context) => MainPage()));
+                  if (key.currentState.validate()) {
+                    String userID = Provider
+                        .of<CurrentUserInfo>(context, listen: false)
+                        .id;
+                    FirebaseFirestore.instance.collection('users').doc(userID).set({
+                      'firstName': firstCtrl.text,
+                      'lastName': lastCtrl.text,
+                      'dietaryRestrictions': dietaryRestrictions,
+                      'allergies': allergies,
+                      'savedRecipes': [],
+                      'ingredients': [],
+                      'materials': []
+                    });
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => MainPage()));
+                  }
                 },
               ),
             )
