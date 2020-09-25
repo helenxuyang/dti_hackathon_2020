@@ -43,6 +43,7 @@ class Recipe {
   Widget buildCategories(BuildContext context) {
     return Wrap(
         spacing: 4,
+        runSpacing: 4,
         children: categories.map((cat) {
           return Container(
             decoration: BoxDecoration(
@@ -64,6 +65,8 @@ class Recipe {
 
   Widget buildIngredients(BuildContext context) {
     return Wrap(
+      spacing: 4,
+      runSpacing: 4,
       children: ingredients.map((ingredient) {
         return FutureBuilder(
             future: userHasIngredient(context, ingredient),
@@ -89,7 +92,6 @@ class Recipe {
             }
         );
       }).toList(),
-      spacing: 4,
     );
   }
 
@@ -98,6 +100,8 @@ class Recipe {
       return Text('None!');
     }
     return Wrap(
+        spacing: 4,
+        runSpacing: 4,
         children: materials.map((material) {
           return FutureBuilder(
               future: userHasMaterial(context, material),

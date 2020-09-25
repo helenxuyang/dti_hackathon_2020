@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dti_hackathon_2020/Recipe.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:provider/provider.dart';
@@ -127,6 +128,8 @@ class _CreateIngredientPageState extends State<CreateIngredientPage> {
                   buildListTile('fruit'),
                   buildListTile('protein'),
                   buildListTile('dairy'),
+                  buildListTile('condiments'),
+                  buildListTile('spices/herbs'),
                   SizedBox(height: 16),
                   Container(
                     width: double.infinity,
@@ -174,27 +177,31 @@ class _CreateIngredientPageState extends State<CreateIngredientPage> {
   }
 }
 
-class Ingredients extends StatelessWidget {
+class KitchenPage extends StatelessWidget {
 
   Future<Ingredient> retrieveIngredient(String ingredientDocID) async {
     DocumentSnapshot doc = await FirebaseFirestore.instance.collection('ingredients').doc(ingredientDocID).get();
     return Ingredient(doc.get('name'), doc.get('type'));
   }
 
-  Future<Widget> buildGroups(BuildContext context, List<String> ingredientDocIDs) async {
+  Future<Widget> buildFoodGroups(BuildContext context, List<String> ingredientDocIDs) async {
     Map<String, List<Ingredient>> groups = {
       'grains': [],
       'vegetables': [],
       'fruit': [],
       'protein': [],
-      'dairy': []
+      'dairy': [],
+      'condiments': [],
+      'spices/herbs': []
     };
     Map<String, Color> groupColors = {
       'grains': Colors.amber[200],
       'vegetables': Colors.green[200],
       'fruit': Colors.red[200],
       'protein': Colors.brown[200],
-      'dairy': Colors.blue[200]
+      'dairy': Colors.blue[200],
+      'condiments': Colors.purple[200],
+      'spices/herbs': Colors.pink[100]
     };
 
     for (String id in ingredientDocIDs) {
@@ -204,7 +211,7 @@ class Ingredients extends StatelessWidget {
 
     List<Widget> columnChildren = [];
     for (String group in groups.keys) {
-      columnChildren.add(buildGroup(context, group, groups[group], groupColors[group]));
+      columnChildren.add(buildFoodGroup(context, group, groups[group], groupColors[group]));
       columnChildren.add(Divider());
     }
 
@@ -215,7 +222,7 @@ class Ingredients extends StatelessWidget {
 
   }
 
-  Widget buildGroup(BuildContext context, String type, List<Ingredient> ingredients, Color color) {
+  Widget buildFoodGroup(BuildContext context, String type, List<Ingredient> ingredients, Color color) {
     String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,6 +237,7 @@ class Ingredients extends StatelessWidget {
               }
               return Wrap(
                 spacing: 4,
+                runSpacing: 4,
                 children: ingredients.map((ing) {
                   return GestureDetector(
                     onTap: () async {
@@ -247,7 +255,7 @@ class Ingredients extends StatelessWidget {
                         decoration: BoxDecoration(
                             color: color,
                             border: Border.all(
-                              color: color
+                                color: color
                             ),
                             borderRadius: BorderRadius.all(Radius.circular(8))
                         ),
@@ -267,6 +275,71 @@ class Ingredients extends StatelessWidget {
             }
         )
       ],
+    );
+  }
+
+  Widget buildMaterialGroup(BuildContext context, String type) {
+    String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
+    return StreamBuilder(
+      stream: FirebaseFirestore.instance.collection('materials').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Container();
+        }
+        List<String> allMaterials = List<String>.from(snapshot.data.docs[0].get(type));
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(type, style: TextStyle(fontSize: 20)),
+            SizedBox(height: 4),
+            FutureBuilder(
+                future: FirebaseFirestore.instance.collection('users').doc(userID).get(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container();
+                  }
+                  List<String> materials = allMaterials.where((mat) => List<String>.from(snapshot.data.get('materials')).contains(mat)).toList();
+                  if (materials.isEmpty) {
+                    return Text('None yet!');
+                  }
+                  return Wrap(
+                    spacing: 4,
+                    runSpacing: 4,
+                    children: materials.map((mat) {
+                      return GestureDetector(
+                        onTap: () async {
+                          FirebaseFirestore.instance.runTransaction((transaction) async {
+                            transaction.update(
+                                snapshot.data.reference,
+                                {'ingredients': snapshot.data.get('ingredients')..remove(mat)});
+                          });
+                        },
+                        child: Container(
+                            decoration: BoxDecoration(
+                                color: Theme.of(context).accentColor,
+                                border: Border.all(
+                                    color: Colors.transparent
+                                ),
+                                borderRadius: BorderRadius.all(Radius.circular(8))
+                            ),
+                            padding: EdgeInsets.all(4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.highlight_off, size: 12),
+                                SizedBox(width: 4),
+                                Text(mat),
+                              ],
+                            )
+                        ),
+                      );
+                    }).toList(),
+                  );
+                }
+            )
+          ],
+        );
+      }
     );
   }
 
@@ -292,26 +365,109 @@ class Ingredients extends StatelessWidget {
                   children: [
                     Text('Kitchen', style: Theme.of(context).textTheme.headline1),
                     SizedBox(height: 16),
-                    Text('Foods', style: Theme.of(context).textTheme.headline2),
+                    Text('Ingredients', style: Theme.of(context).textTheme.headline2),
                     SizedBox(height: 8),
                     FutureBuilder(
-                      future: buildGroups(context, ingredientDocIDs),
+                      future: buildFoodGroups(context, ingredientDocIDs),
                       builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          print(snapshot.error);
-                        }
                         if (!snapshot.hasData) {
                           return CircularProgressIndicator();
                         }
                         return snapshot.data;
                       },
-                    )
+                    ),
+                    Text('Materials', style: Theme.of(context).textTheme.headline2),
+                    SizedBox(height: 8),
+                    buildMaterialGroup(context, 'appliances'),
+                    Divider(),
+                    buildMaterialGroup(context, 'cookware'),
+                    Divider(),
+                    buildMaterialGroup(context, 'utensils'),
                   ]
               ),
             ),
           ),
         );
       },
+    );
+  }
+}
+
+class EditMaterialsPage extends StatefulWidget {
+  EditMaterialsPage(this.origMaterials, this.materialDoc);
+  final List<String> origMaterials;
+  final DocumentSnapshot materialDoc;
+  @override
+  _EditMaterialsPageState createState() => _EditMaterialsPageState();
+}
+
+class _EditMaterialsPageState extends State<EditMaterialsPage> {
+  List<String> newMaterials;
+
+  @override
+  initState() {
+    super.initState();
+    newMaterials = widget.origMaterials;
+  }
+
+  Widget createMaterialList(BuildContext context, String type) {
+    return ExpansionTile(
+      initiallyExpanded: true,
+      title: Text(type, style: Theme.of(context).textTheme.headline2),
+      children: List<String>.from(widget.materialDoc.get(type)).map((mat) {
+        return CheckboxListTile(
+          title: Text(mat),
+          value: newMaterials.contains(mat),
+          onChanged: (bool value) async {
+            if (value) {
+                setState(() {
+                  newMaterials.add(mat);
+                });
+            }
+            else {
+              setState(() {
+                newMaterials.remove(mat);
+              });
+            }
+          },
+        );
+      }).toList(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Edit materials', style: Theme.of(context).textTheme.headline1),
+                  SizedBox(height: 16),
+                  createMaterialList(context, 'appliances'),
+                  createMaterialList(context, 'cookware'),
+                  createMaterialList(context, 'utensils'),
+                  Container(
+                    width: double.infinity,
+                    child: FlatButton(
+                        padding: EdgeInsets.all(16),
+                        child: Text('Save', style: TextStyle(color: Colors.white, fontSize: 16)),
+                        color: Theme.of(context).primaryColor,
+                        onPressed: () async {
+                          String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
+                          await FirebaseFirestore.instance.collection('users').doc(userID).update({'materials': newMaterials});
+                          Navigator.of(context).pop();
+                        }
+                    ),
+                  )
+                ]
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

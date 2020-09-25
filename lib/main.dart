@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -6,6 +7,7 @@ import 'Login.dart';
 import 'RecipesPage.dart';
 import 'Kitchen.dart';
 import 'PostsPage.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,7 +66,7 @@ class MainPageState extends State<MainPage> {
   Widget getPage(BuildContext context, int index) {
     switch (index) {
       case KITCHEN:
-        return Ingredients();
+        return KitchenPage();
         break;
       case EXPLORE:
         return RecipesPage();
@@ -82,20 +84,55 @@ class MainPageState extends State<MainPage> {
     }
   }
 
+  Widget buildFAB(BuildContext context) {
+    switch (_selectedIndex) {
+      case KITCHEN:
+        return SpeedDial(
+          backgroundColor: Theme.of(context).primaryColor,
+          child: Icon(Icons.add, color: Colors.white,),
+          children: [
+            SpeedDialChild(
+              child: Icon(Icons.fastfood, color: Colors.white),
+              backgroundColor: Theme.of(context).primaryColor,
+              label: 'Add ingredient',
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => CreateIngredientPage()))
+            ),
+            SpeedDialChild(
+              child: Icon(Icons.restaurant, color: Colors.white),
+              backgroundColor: Theme.of(context).primaryColor,
+              label: 'Add material',
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return StreamBuilder(
+                  stream: FirebaseFirestore.instance.collection('materials').snapshots(),
+                  builder: (context, materialsSnapshot) {
+                    if (!materialsSnapshot.hasData) {
+                      return Scaffold();
+                    }
+                    String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
+                    return StreamBuilder(
+                      stream: FirebaseFirestore.instance.collection('users').doc(userID).snapshots(),
+                      builder: (context, userSnapshot) {
+                        if (!userSnapshot.hasData) {
+                          return Scaffold();
+                        }
+                        return EditMaterialsPage(List<String>.from(userSnapshot.data.get('materials')), materialsSnapshot.data.docs[0]);
+                      }
+                    );
+                  },
+                );
+              }))
+
+    )
+          ]
+        );
+      default:
+        return null;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: _selectedIndex == KITCHEN ?
-      FloatingActionButton(
-        child: Icon(Icons.add, color: Colors.white),
-        backgroundColor: Theme.of(context).primaryColor,
-        onPressed: () {
-          switch (_selectedIndex) {
-            case (KITCHEN):
-              Navigator.push(context, MaterialPageRoute(builder: (context) => CreateIngredientPage()));
-          }
-        },
-      ) : null,
+      floatingActionButton: buildFAB(context),
       body: SafeArea(
           child: getPage(context, _selectedIndex)
       ),
