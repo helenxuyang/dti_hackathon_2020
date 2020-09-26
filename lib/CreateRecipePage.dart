@@ -364,6 +364,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
                   color: Theme.of(context).primaryColor,
                   onPressed: () async {
                     if (key.currentState.validate()) {
+                      uploadImageToGCS();
                       FirebaseFirestore.instance.collection('recipes').add({
                         'categories': categories,
                         'creator': await retrieveCreatorName(context),
