@@ -2,6 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:provider/provider.dart';
 import 'CreateRecipePage.dart';
 import 'Login.dart';
@@ -13,7 +15,9 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  final FirebaseApp app = await Firebase.initializeApp();
+  final FirebaseStorage storage = FirebaseStorage(
+      app: app, storageBucket: 'gs://flutter-firebase-plugins.appspot.com');
   runApp(MyApp());
 }
 
@@ -35,20 +39,17 @@ class MyApp extends StatelessWidget {
                   fontFamily: 'Proxima-Nova',
                   fontWeight: FontWeight.bold,
                   fontSize: 32,
-                  color: primary
-              ),
+                  color: primary),
               headline2: TextStyle(
                   fontFamily: 'Proxima-Nova',
                   fontWeight: FontWeight.bold,
                   fontSize: 22,
-                  color: Colors.black
-              ),
+                  color: Colors.black),
             ),
           ),
           home: LoginPage(),
         ),
-        create: (context) => CurrentUserInfo()
-    );
+        create: (context) => CurrentUserInfo());
   }
 }
 
@@ -91,84 +92,90 @@ class MainPageState extends State<MainPage> {
       case KITCHEN:
         return SpeedDial(
             backgroundColor: Theme.of(context).primaryColor,
-            child: Icon(Icons.add, color: Colors.white,),
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
             children: [
               SpeedDialChild(
                   child: Icon(Icons.fastfood, color: Colors.white),
                   backgroundColor: Theme.of(context).primaryColor,
                   label: 'Add ingredient',
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => CreateIngredientPage()))
-              ),
+                  onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CreateIngredientPage()))),
               SpeedDialChild(
                   child: Icon(Icons.restaurant, color: Colors.white),
                   backgroundColor: Theme.of(context).primaryColor,
                   label: 'Add material',
-                  onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return StreamBuilder(
-                      stream: FirebaseFirestore.instance.collection('materials').snapshots(),
-                      builder: (context, materialsSnapshot) {
-                        if (!materialsSnapshot.hasData) {
-                          return Scaffold();
-                        }
-                        String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
+                  onTap: () => Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
                         return StreamBuilder(
-                            stream: FirebaseFirestore.instance.collection('users').doc(userID).snapshots(),
-                            builder: (context, userSnapshot) {
-                              if (!userSnapshot.hasData) {
-                                return Scaffold();
-                              }
-                              return EditMaterialsPage(List<String>.from(userSnapshot.data.get('materials')), materialsSnapshot.data.docs[0]);
+                          stream: FirebaseFirestore.instance
+                              .collection('materials')
+                              .snapshots(),
+                          builder: (context, materialsSnapshot) {
+                            if (!materialsSnapshot.hasData) {
+                              return Scaffold();
                             }
+                            String userID = Provider.of<CurrentUserInfo>(
+                                    context,
+                                    listen: false)
+                                .id;
+                            return StreamBuilder(
+                                stream: FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(userID)
+                                    .snapshots(),
+                                builder: (context, userSnapshot) {
+                                  if (!userSnapshot.hasData) {
+                                    return Scaffold();
+                                  }
+                                  return EditMaterialsPage(
+                                      List<String>.from(
+                                          userSnapshot.data.get('materials')),
+                                      materialsSnapshot.data.docs[0]);
+                                });
+                          },
                         );
-                      },
-                    );
-                  }))
-
-              )
-            ]
-        );
+                      })))
+            ]);
       case SAVED:
         return FloatingActionButton(
             child: Icon(Icons.add, color: Colors.white),
             backgroundColor: Theme.of(context).primaryColor,
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => CreateRecipePage()))
-        );
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => CreateRecipePage())));
       default:
         return null;
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: buildFAB(context),
-      body: SafeArea(
-          child: getPage(context, _selectedIndex)
-      ),
+      body: SafeArea(child: getPage(context, _selectedIndex)),
       bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           selectedItemColor: Theme.of(context).buttonColor,
           items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-                icon: Icon(Icons.restaurant_menu), title: Text('Kitchen')
-            ),
+                icon: Icon(Icons.restaurant_menu), title: Text('Kitchen')),
             BottomNavigationBarItem(
-                icon: Icon(Icons.explore), title: Text('Explore')
-            ),
+                icon: Icon(Icons.explore), title: Text('Explore')),
             BottomNavigationBarItem(
-                icon: Icon(Icons.favorite), title: Text('Saved')
-            ),
+                icon: Icon(Icons.favorite), title: Text('Saved')),
             BottomNavigationBarItem(
-                icon: Icon(Icons.chat), title: Text('Social')
-            ),
+                icon: Icon(Icons.chat), title: Text('Social')),
             BottomNavigationBarItem(
-                icon: Icon(Icons.account_circle), title: Text('Profile')
-            )
+                icon: Icon(Icons.account_circle), title: Text('Profile'))
           ],
           currentIndex: _selectedIndex,
           onTap: (int index) => setState(() {
-            _selectedIndex = index;
-          })
-      ),
+                _selectedIndex = index;
+              })),
     );
   }
 }
