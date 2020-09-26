@@ -147,6 +147,12 @@ class MainPageState extends State<MainPage> {
             backgroundColor: Theme.of(context).primaryColor,
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (context) => CreateRecipePage())));
+      case SOCIAL:
+        return FloatingActionButton(
+            child: Icon(Icons.create, color: Colors.white),
+            backgroundColor: Theme.of(context).primaryColor,
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => CreateRecipePage())));
       default:
         return null;
     }
