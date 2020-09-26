@@ -367,7 +367,6 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
                       FirebaseFirestore.instance.collection('recipes').add({
                         'categories': categories,
                         'creator': await retrieveCreatorName(context),
-                        //TODO: replace with actual imageURL
                         'imageURL':
                             'https://i.kym-cdn.com/entries/icons/mobile/000/034/800/Get_Stick_Bugged_Banner.jpg',
                         'ingredients': ingredients,
