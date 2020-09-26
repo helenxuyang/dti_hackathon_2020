@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:provider/provider.dart';
+import 'CreatePostPage.dart';
 import 'CreateRecipePage.dart';
 import 'Login.dart';
 import 'RecipesPage.dart';
@@ -152,7 +153,7 @@ class MainPageState extends State<MainPage> {
             child: Icon(Icons.create, color: Colors.white),
             backgroundColor: Theme.of(context).primaryColor,
             onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (context) => CreateRecipePage())));
+                MaterialPageRoute(builder: (context) => CreatePostPage())));
       default:
         return null;
     }
