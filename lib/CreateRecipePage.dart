@@ -62,11 +62,11 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
           .ref()
           .child('recipe_pics/${Path.basename(_image.path)}}}');
       StorageUploadTask uploadTask = storageReference.putFile(_image);
-      await uploadTask.onComplete;
-      storageReference.getDownloadURL().then((fileURL) {
-        setState(() {
-          _uploadedImageUrl = fileURL;
-        });
+
+      var downloadUrl =
+          await (await uploadTask.onComplete).ref.getDownloadURL();
+      setState(() {
+        _uploadedImageUrl = downloadUrl.toString();
       });
     }
   }
@@ -370,6 +370,7 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
                   onPressed: () async {
                     if (key.currentState.validate()) {
                       await uploadImageToGCS();
+                      print("bruh " + _uploadedImageUrl);
                       FirebaseFirestore.instance.collection('recipes').add({
                         'categories': categories,
                         'creator': await retrieveCreatorName(context),
