@@ -19,18 +19,18 @@ class _RecipesPageState extends State<RecipesPage> {
           gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomLeft,
-              colors: [Colors.white, Color.fromRGBO(0xE5, 0xF8, 0xF8, 1.0)]
-          )
-      ),
+              colors: [Colors.white, Color.fromRGBO(0xE5, 0xF8, 0xF8, 1.0)])),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
             padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-            child: Text('Explore', style: Theme.of(context).textTheme.headline1),
+            child:
+                Text('Explore', style: Theme.of(context).textTheme.headline1),
           ),
           StreamBuilder(
-              stream: FirebaseFirestore.instance.collection('recipes').snapshots(),
+              stream:
+                  FirebaseFirestore.instance.collection('recipes').snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
                   print('error when retrieving all recipes: ${snapshot.error}');
@@ -51,11 +51,14 @@ class _RecipesPageState extends State<RecipesPage> {
                             children: [
                               Center(
                                 child: Container(
-                                  width: screenWidth * 0.6,
+                                    width: screenWidth * 0.6,
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Text('That\'s all we have for your ingredients! Want to create your own recipe?', textAlign: TextAlign.center),
+                                        Text(
+                                            'That\'s all we have for your ingredients! Want to create your own recipe?',
+                                            textAlign: TextAlign.center),
                                         FlatButton(
                                           color: Theme.of(context).primaryColor,
                                           child: Text('Create'),
@@ -64,8 +67,7 @@ class _RecipesPageState extends State<RecipesPage> {
                                           },
                                         )
                                       ],
-                                    )
-                                ),
+                                    )),
                               ),
                               TinderSwapCard(
                                 cardController: controller,
@@ -82,15 +84,27 @@ class _RecipesPageState extends State<RecipesPage> {
                                   DocumentSnapshot doc = recipeDocs[index];
                                   return RecipeCard.fromDoc(doc);
                                 },
-                                swipeCompleteCallback: (CardSwipeOrientation orientation, int index) {
-                                  if (orientation == CardSwipeOrientation.RIGHT) {
-                                    FirebaseFirestore.instance.runTransaction((transaction) async {
-                                      String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
-                                      DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userID).get();
-                                      transaction.update(
-                                          userDoc.reference,
-                                          {'savedRecipes': userDoc.get('savedRecipes')..add(recipeDocs[index].id)}
-                                      );
+                                swipeCompleteCallback:
+                                    (CardSwipeOrientation orientation,
+                                        int index) {
+                                  if (orientation ==
+                                      CardSwipeOrientation.RIGHT) {
+                                    FirebaseFirestore.instance
+                                        .runTransaction((transaction) async {
+                                      String userID =
+                                          Provider.of<CurrentUserInfo>(context,
+                                                  listen: false)
+                                              .id;
+                                      DocumentSnapshot userDoc =
+                                          await FirebaseFirestore.instance
+                                              .collection('users')
+                                              .doc(userID)
+                                              .get();
+                                      transaction.update(userDoc.reference, {
+                                        'savedRecipes':
+                                            userDoc.get('savedRecipes')
+                                              ..add(recipeDocs[index].id)
+                                      });
                                     });
                                   }
                                 },
@@ -108,7 +122,8 @@ class _RecipesPageState extends State<RecipesPage> {
                           shape: CircleBorder(),
                           color: Colors.white,
                           padding: EdgeInsets.all(12),
-                          child: Icon(Icons.close, color: Theme.of(context).primaryColor, size: 28),
+                          child: Icon(Icons.close,
+                              color: Theme.of(context).primaryColor, size: 28),
                           onPressed: () {
                             controller.triggerLeft();
                           },
@@ -117,7 +132,8 @@ class _RecipesPageState extends State<RecipesPage> {
                           shape: CircleBorder(),
                           color: Colors.white,
                           padding: EdgeInsets.all(12),
-                          child: Icon(Icons.favorite_border, color: Theme.of(context).accentColor, size: 28),
+                          child: Icon(Icons.favorite_border,
+                              color: Theme.of(context).accentColor, size: 28),
                           onPressed: () {
                             controller.triggerRight();
                           },
@@ -126,8 +142,7 @@ class _RecipesPageState extends State<RecipesPage> {
                     )
                   ],
                 );
-              }
-          ),
+              }),
         ],
       ),
     );
