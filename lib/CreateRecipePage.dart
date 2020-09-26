@@ -21,6 +21,7 @@ class CreateRecipePage extends StatefulWidget {
 class _CreateRecipePageState extends State<CreateRecipePage> {
   GlobalKey<FormState> key = GlobalKey();
   File _image;
+  String _uploadedImageUrl;
   final picker = ImagePicker();
   TextEditingController nameCtrl = TextEditingController();
   List<String> categories = [];
@@ -62,7 +63,11 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
           .child('recipe_pics/${Path.basename(_image.path)}}}');
       StorageUploadTask uploadTask = storageReference.putFile(_image);
       await uploadTask.onComplete;
-      print('file uploaded');
+      storageReference.getDownloadURL().then((fileURL) {
+        setState(() {
+          _uploadedImageUrl = fileURL;
+        });
+      });
     }
   }
 
@@ -364,12 +369,11 @@ class _CreateRecipePageState extends State<CreateRecipePage> {
                   color: Theme.of(context).primaryColor,
                   onPressed: () async {
                     if (key.currentState.validate()) {
-                      uploadImageToGCS();
+                      await uploadImageToGCS();
                       FirebaseFirestore.instance.collection('recipes').add({
                         'categories': categories,
                         'creator': await retrieveCreatorName(context),
-                        'imageURL':
-                            'https://i.kym-cdn.com/entries/icons/mobile/000/034/800/Get_Stick_Bugged_Banner.jpg',
+                        'imageURL': _uploadedImageUrl,
                         'ingredients': ingredients,
                         'instructions': instructions,
                         'materials': materials,
