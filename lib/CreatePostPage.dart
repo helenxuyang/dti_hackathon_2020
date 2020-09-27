@@ -62,67 +62,67 @@ class _CreatePostPageState extends State<CreatePostPage> {
     return Scaffold(
         body: SafeArea(
             child: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Form(
-          key: key,
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            IconButton(
-              alignment: Alignment.topLeft,
-              icon: Icon(Icons.close),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            Text('Create Post', style: Theme.of(context).textTheme.headline1),
-            Text('Title', style: Theme.of(context).textTheme.headline2),
-            SizedBox(height: 4),
-            TextFormField(
-              textCapitalization: TextCapitalization.sentences,
-              controller: titleCtrl,
-              validator: (input) {
-                if (input.isEmpty) {
-                  return 'Please enter a title for your post!';
-                }
-                return null;
-              },
-            ),
-            Text('Description', style: Theme.of(context).textTheme.headline2),
-            SizedBox(height: 4),
-            TextFormField(
-              textCapitalization: TextCapitalization.sentences,
-              controller: descCtrl,
-              validator: (input) {
-                if (input.isEmpty) {
-                  return 'Please enter a description for your post!';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              child: FlatButton(
-                  padding: EdgeInsets.all(16),
-                  child: Text('Save',
-                      style: TextStyle(color: Colors.white, fontSize: 16)),
-                  color: Theme.of(context).primaryColor,
-                  onPressed: () async {
-                    if (key.currentState.validate()) {
-                      FirebaseFirestore.instance.collection('posts').add({
-                        'description': descCtrl.text,
-                        'posterID': await getUserId(),
-                        'title': titleCtrl.text,
-                        'upvotes': 0,
-                      });
-                      Navigator.of(context).pop();
-                    }
-                  }),
-            )
-          ]),
-        ),
-      ),
-    )));
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Form(
+                  key: key,
+                  child:
+                  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    IconButton(
+                      alignment: Alignment.topLeft,
+                      icon: Icon(Icons.close),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    Text('Create Post', style: Theme.of(context).textTheme.headline1),
+                    SizedBox(height: 16),
+                    Text('Title', style: Theme.of(context).textTheme.headline2),
+                    TextFormField(
+                      textCapitalization: TextCapitalization.sentences,
+                      controller: titleCtrl,
+                      validator: (input) {
+                        if (input.isEmpty) {
+                          return 'Please enter a title for your post!';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 8),
+                    Text('Description', style: Theme.of(context).textTheme.headline2),
+                    TextFormField(
+                      textCapitalization: TextCapitalization.sentences,
+                      controller: descCtrl,
+                      validator: (input) {
+                        if (input.isEmpty) {
+                          return 'Please enter a description for your post!';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      child: FlatButton(
+                          padding: EdgeInsets.all(16),
+                          child: Text('Save',
+                              style: TextStyle(color: Colors.white, fontSize: 16)),
+                          color: Theme.of(context).primaryColor,
+                          onPressed: () async {
+                            if (key.currentState.validate()) {
+                              FirebaseFirestore.instance.collection('posts').add({
+                                'description': descCtrl.text,
+                                'posterID': await getUserId(),
+                                'title': titleCtrl.text,
+                                'upvotes': 0,
+                              });
+                              Navigator.of(context).pop();
+                            }
+                          }),
+                    )
+                  ]),
+                ),
+              ),
+            )));
   }
 }
