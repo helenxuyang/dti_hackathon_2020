@@ -3,6 +3,7 @@ import 'package:dti_hackathon_2020/Login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_tindercard/flutter_tindercard.dart';
 import 'package:provider/provider.dart';
+import 'CreateRecipePage.dart';
 import 'Recipe.dart';
 import 'UserInfo.dart';
 
@@ -62,9 +63,11 @@ class _RecipesPageState extends State<RecipesPage> {
                                         FlatButton(
                                           color: Theme.of(context).primaryColor,
                                           child: Text('Create'),
-                                          onPressed: () {
-                                            //TODO: navigate to create recipe page
-                                          },
+                                          onPressed: () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      CreateRecipePage())),
                                         )
                                       ],
                                     )),
