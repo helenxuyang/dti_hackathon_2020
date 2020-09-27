@@ -12,6 +12,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 
 import 'Kitchen.dart';
+import 'UserInfo.dart';
 
 class CreateRecipePage extends StatefulWidget {
   @override
