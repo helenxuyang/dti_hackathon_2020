@@ -35,6 +35,15 @@ class MyApp extends StatelessWidget {
             accentColor: Color.fromRGBO(0xFF, 0xC5, 0x99, 1.0),
             buttonColor: primary,
             visualDensity: VisualDensity.adaptivePlatformDensity,
+            inputDecorationTheme: InputDecorationTheme(
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none
+                ),
+                contentPadding: EdgeInsets.all(16),
+                filled: true,
+                fillColor: Color.fromRGBO(0xee, 0xee, 0xee, 1.0),
+            ),
             textTheme: TextTheme(
               headline1: TextStyle(
                   fontFamily: 'Proxima-Nova',

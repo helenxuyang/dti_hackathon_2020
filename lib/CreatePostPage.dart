@@ -115,6 +115,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                                 'posterID': await getUserId(),
                                 'title': titleCtrl.text,
                                 'upvotes': 0,
+                                'timePosted': DateTime.now()
                               });
                               Navigator.of(context).pop();
                             }
