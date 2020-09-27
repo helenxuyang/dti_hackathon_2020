@@ -7,21 +7,27 @@ import 'UserInfo.dart';
 
 Color greenBack = Color.fromRGBO(0xDF, 0xFC, 0xE2, 1.0);
 Color redBack = Color.fromRGBO(0xFC, 0xDF, 0xDF, 1.0);
+Color darkRedBack = Color.fromRGBO(0xFF, 0x97, 0x97, 1.0);
 Color greenText = Color.fromRGBO(0x0C, 0x8D, 0x09, 1.0);
 Color redText = Color.fromRGBO(0x8D, 0x09, 0x09, 1.0);
 
 Future<bool> userHasMaterial(BuildContext context, String material) async {
   String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
-  DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userID).get();
+  DocumentSnapshot userDoc =
+      await FirebaseFirestore.instance.collection('users').doc(userID).get();
   List<String> materials = List<String>.from(userDoc.get('materials'));
   return materials.contains(material);
 }
 
 Future<bool> userHasIngredient(BuildContext context, String ingredient) async {
   String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
-  DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('users').doc(userID).get();
+  DocumentSnapshot userDoc =
+      await FirebaseFirestore.instance.collection('users').doc(userID).get();
   List<String> ingredientIDs = List<String>.from(userDoc.get('ingredients'));
-  QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection('ingredients').where('name', isEqualTo: ingredient).get();
+  QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      .collection('ingredients')
+      .where('name', isEqualTo: ingredient)
+      .get();
   List<DocumentSnapshot> docs = querySnapshot.docs;
   for (DocumentSnapshot doc in docs) {
     if (ingredientIDs.contains(doc.id)) {
@@ -31,8 +37,31 @@ Future<bool> userHasIngredient(BuildContext context, String ingredient) async {
   return false;
 }
 
+Future<bool> userIsAllergic(BuildContext context, String ingredient) async {
+  String userID = Provider.of<CurrentUserInfo>(context, listen: false).id;
+  DocumentSnapshot userDoc =
+      await FirebaseFirestore.instance.collection('users').doc(userID).get();
+  List<String> allergyArray = List<String>.from(userDoc.get('allergies'));
+  QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      .collection('ingredients')
+      .where('name', isEqualTo: ingredient)
+      .get();
+  List<DocumentSnapshot> docs = querySnapshot.docs;
+  for (DocumentSnapshot doc in docs) {
+    try {
+      if (allergyArray.contains(doc.get("allergy-group"))) {
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+  return false;
+}
+
 class Recipe {
-  Recipe(this.name, this.creator, this.imageURL, this.categories, this.ingredients, this.materials, this.instructions);
+  Recipe(this.name, this.creator, this.imageURL, this.categories,
+      this.ingredients, this.materials, this.instructions);
   String name;
   String creator;
   String imageURL;
@@ -50,19 +79,12 @@ class Recipe {
           return Container(
             decoration: BoxDecoration(
                 color: Theme.of(context).accentColor,
-                border: Border.all(
-                    color: Colors.transparent
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(8))
-            ),
+                border: Border.all(color: Colors.transparent),
+                borderRadius: BorderRadius.all(Radius.circular(8))),
             padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-            child: Text(
-                cat,
-                style: TextStyle(fontSize: 14)
-            ),
+            child: Text(cat, style: TextStyle(fontSize: 14)),
           );
-        }).toList()
-    );
+        }).toList());
   }
 
   Widget buildIngredients(BuildContext context) {
@@ -71,28 +93,42 @@ class Recipe {
       runSpacing: 4,
       children: ingredients.map((ingredient) {
         return FutureBuilder(
-            future: userHasIngredient(context, ingredient),
+            future: userIsAllergic(context, ingredient),
             builder: (context, snapshot) {
-              bool userHas = snapshot.data;
-              return Container(
-                decoration: BoxDecoration(
-                    color: userHas == null ? Colors.grey[200] : userHas ? greenBack : redBack,
-                    border: Border.all(
-                      color: Colors.transparent,
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(8))
-                ),
-                padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-                child: Text(
-                    ingredient,
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: userHas == null ? Colors.grey[600] : userHas ? greenText : redText
-                    )
-                ),
-              );
-            }
-        );
+              bool isAllergic = snapshot.data;
+              return FutureBuilder(
+                  future: userHasIngredient(context, ingredient),
+                  builder: (context, snapshot) {
+                    bool userHas = snapshot.data;
+                    return Container(
+                      decoration: BoxDecoration(
+                          color: userHas == null
+                              ? Colors.grey[200]
+                              : userHas
+                                  ? (!isAllergic ? greenBack : darkRedBack)
+                                  : redBack,
+                          border: Border.all(
+                            color: Colors.transparent,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(8))),
+                      padding:
+                          EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+                      child: Text(ingredient,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: isAllergic == null
+                                  ? FontWeight.normal
+                                  : isAllergic
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                              color: userHas == null
+                                  ? Colors.grey[600]
+                                  : userHas && !isAllergic
+                                      ? greenText
+                                      : redText)),
+                    );
+                  });
+            });
       }).toList(),
     );
   }
@@ -111,8 +147,7 @@ class Recipe {
                 bool userHas;
                 if (!snapshot.hasData) {
                   userHas = false;
-                }
-                else {
+                } else {
                   userHas = snapshot.data;
                 }
                 return Container(
@@ -121,21 +156,15 @@ class Recipe {
                       border: Border.all(
                         color: userHas ? greenBack : redBack,
                       ),
-                      borderRadius: BorderRadius.all(Radius.circular(8))
-                  ),
-                  padding: EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
-                  child: Text(
-                      material,
+                      borderRadius: BorderRadius.all(Radius.circular(8))),
+                  padding:
+                      EdgeInsets.only(left: 8, right: 8, top: 4, bottom: 4),
+                  child: Text(material,
                       style: TextStyle(
-                          fontSize: 14,
-                          color: userHas ? greenText : redText
-                      )
-                  ),
+                          fontSize: 14, color: userHas ? greenText : redText)),
                 );
-              }
-          );
-        }).toList()
-    );
+              });
+        }).toList());
   }
 }
 
@@ -158,7 +187,8 @@ class RecipeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => RecipePage(recipe)));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => RecipePage(recipe)));
       },
       child: Card(
           shape: RoundedRectangleBorder(
@@ -166,42 +196,37 @@ class RecipeCard extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.all(24),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.25),
-                      child: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      fit: BoxFit.fitWidth,
-                                      image: NetworkImage(recipe.imageURL)
-                                  )
-                              )
-                          )
-                      )
-                  ),
-                  SizedBox(height: 8),
-                  Text(recipe.name, style: Theme.of(context).textTheme.headline2),
-                  Text('Recipe by: ' + recipe.creator),
-                  //SizedBox(height: 4),
-                  //buildStars(context),
-                  SizedBox(height: 8),
-                  recipe.buildCategories(context),
-                  SizedBox(height: 8),
-                  Text('Ingredients:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 6),
-                  recipe.buildIngredients(context),
-                  SizedBox(height: 8),
-                  Text('Materials:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 6),
-                  recipe.buildMaterials(context)
-                ]
-            ),
-          )
-      ),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Container(
+                  constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.25),
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  fit: BoxFit.fitWidth,
+                                  image: NetworkImage(recipe.imageURL)))))),
+              SizedBox(height: 8),
+              Text(recipe.name, style: Theme.of(context).textTheme.headline2),
+              Text('Recipe by: ' + recipe.creator),
+              //SizedBox(height: 4),
+              //buildStars(context),
+              SizedBox(height: 8),
+              recipe.buildCategories(context),
+              SizedBox(height: 8),
+              Text('Ingredients:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              SizedBox(height: 6),
+              recipe.buildIngredients(context),
+              SizedBox(height: 8),
+              Text('Materials:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              SizedBox(height: 6),
+              recipe.buildMaterials(context)
+            ]),
+          )),
     );
   }
 }
@@ -214,83 +239,84 @@ class RecipePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                          width: MediaQuery.of(context).size.width,
-                          constraints: BoxConstraints(
-                              maxHeight: MediaQuery.of(context).size.height * 0.4),
-                          child: Image.network(recipe.imageURL, fit: BoxFit.fitWidth)
-                      ),
-                      Positioned(
-                        left: 5, top: 5,
-                        child: RawMaterialButton(
-                          constraints: BoxConstraints(minWidth: 36.0, maxWidth: 36.0, minHeight: 36.0, maxHeight: 36.0),
-                          child: Icon(Icons.close, color: Colors.white),
-                          fillColor: Colors.black,
-                          shape: CircleBorder(),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 24, right: 24),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(recipe.name, style: Theme.of(context).textTheme.headline1),
-                          Text('Recipe by: ' + recipe.creator, style: TextStyle(fontSize: 16)),
-                          SizedBox(height: 6),
-                          recipe.buildCategories(context),
-                          SizedBox(height: 8),
-                          Text('Ingredients:', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 6),
-                          recipe.buildIngredients(context),
-                          SizedBox(height: 8),
-                          Text('Materials:', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 6),
-                          recipe.buildMaterials(context),
-                          SizedBox(height: 8),
-                          Text('Instructions:', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                          SizedBox(height: 6),
-                          ListView.builder(
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              itemCount: recipe.instructions.length,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(top: 2, bottom: 2),
-                                  child: Text((index+1).toString() + ') ' + recipe.instructions[index]),
-                                );
-                              }
-                          ),
-                          SizedBox(height: 8),
-                          FlatButton(
-                              child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.chevron_left),
-                                    SizedBox(width: 8),
-                                    Text('Back')
-                                  ]
-                              ),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              }
-                          )
-                        ]
-                    ),
-                  )
-                ]
-            ),
+      child: SingleChildScrollView(
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Stack(
+            children: [
+              Container(
+                  width: MediaQuery.of(context).size.width,
+                  constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.4),
+                  child: Image.network(recipe.imageURL, fit: BoxFit.fitWidth)),
+              Positioned(
+                left: 5,
+                top: 5,
+                child: RawMaterialButton(
+                  constraints: BoxConstraints(
+                      minWidth: 36.0,
+                      maxWidth: 36.0,
+                      minHeight: 36.0,
+                      maxHeight: 36.0),
+                  child: Icon(Icons.close, color: Colors.white),
+                  fillColor: Colors.black,
+                  shape: CircleBorder(),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              )
+            ],
           ),
-        )
-    );
+          SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.only(left: 24, right: 24),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(recipe.name, style: Theme.of(context).textTheme.headline1),
+              Text('Recipe by: ' + recipe.creator,
+                  style: TextStyle(fontSize: 16)),
+              SizedBox(height: 6),
+              recipe.buildCategories(context),
+              SizedBox(height: 8),
+              Text('Ingredients:',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              SizedBox(height: 6),
+              recipe.buildIngredients(context),
+              SizedBox(height: 8),
+              Text('Materials:',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              SizedBox(height: 6),
+              recipe.buildMaterials(context),
+              SizedBox(height: 8),
+              Text('Instructions:',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+              SizedBox(height: 6),
+              ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: recipe.instructions.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 2, bottom: 2),
+                      child: Text((index + 1).toString() +
+                          ') ' +
+                          recipe.instructions[index]),
+                    );
+                  }),
+              SizedBox(height: 8),
+              FlatButton(
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.chevron_left),
+                        SizedBox(width: 8),
+                        Text('Back')
+                      ]),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  })
+            ]),
+          )
+        ]),
+      ),
+    ));
   }
 }
