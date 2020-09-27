@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:provider/provider.dart';
+import 'CreatePostPage.dart';
 import 'CreateRecipePage.dart';
 import 'Login.dart';
 import 'RecipesPage.dart';
@@ -36,6 +37,15 @@ class MyApp extends StatelessWidget {
             accentColor: Color.fromRGBO(0xFF, 0xC5, 0x99, 1.0),
             buttonColor: primary,
             visualDensity: VisualDensity.adaptivePlatformDensity,
+            inputDecorationTheme: InputDecorationTheme(
+                border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none
+                ),
+                contentPadding: EdgeInsets.all(16),
+                filled: true,
+                fillColor: Color.fromRGBO(0xee, 0xee, 0xee, 1.0),
+            ),
             textTheme: TextTheme(
               headline1: TextStyle(
                   fontFamily: 'Proxima-Nova',
@@ -149,6 +159,12 @@ class MainPageState extends State<MainPage> {
             backgroundColor: Theme.of(context).primaryColor,
             onPressed: () => Navigator.push(context,
                 MaterialPageRoute(builder: (context) => CreateRecipePage())));
+      case SOCIAL:
+        return FloatingActionButton(
+            child: Icon(Icons.create, color: Colors.white),
+            backgroundColor: Theme.of(context).primaryColor,
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (context) => CreatePostPage())));
       default:
         return null;
     }
