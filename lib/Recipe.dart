@@ -7,6 +7,7 @@ import 'UserInfo.dart';
 
 Color greenBack = Color.fromRGBO(0xDF, 0xFC, 0xE2, 1.0);
 Color redBack = Color.fromRGBO(0xFC, 0xDF, 0xDF, 1.0);
+Color darkRedBack = Color.fromRGBO(0xFF, 0x97, 0x97, 1.0);
 Color greenText = Color.fromRGBO(0x0C, 0x8D, 0x09, 1.0);
 Color redText = Color.fromRGBO(0x8D, 0x09, 0x09, 1.0);
 
@@ -47,8 +48,12 @@ Future<bool> userIsAllergic(BuildContext context, String ingredient) async {
       .get();
   List<DocumentSnapshot> docs = querySnapshot.docs;
   for (DocumentSnapshot doc in docs) {
-    if (allergyArray.contains(doc.get("allergy-group"))) {
-      return true;
+    try {
+      if (allergyArray.contains(doc.get("allergy-group"))) {
+        return true;
+      }
+    } catch (e) {
+      return false;
     }
   }
   return false;
@@ -99,7 +104,9 @@ class Recipe {
                       decoration: BoxDecoration(
                           color: userHas == null
                               ? Colors.grey[200]
-                              : userHas || !isAllergic ? greenBack : redBack,
+                              : userHas
+                                  ? (!isAllergic ? greenBack : darkRedBack)
+                                  : redBack,
                           border: Border.all(
                             color: Colors.transparent,
                           ),
@@ -109,9 +116,14 @@ class Recipe {
                       child: Text(ingredient,
                           style: TextStyle(
                               fontSize: 14,
+                              fontWeight: isAllergic == null
+                                  ? FontWeight.normal
+                                  : isAllergic
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                               color: userHas == null
                                   ? Colors.grey[600]
-                                  : userHas || !isAllergic
+                                  : userHas && !isAllergic
                                       ? greenText
                                       : redText)),
                     );
